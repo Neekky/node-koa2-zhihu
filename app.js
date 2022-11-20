@@ -3,27 +3,33 @@ const app = new Koa();
 const views = require("koa-views");
 const json = require("koa-json");
 const onerror = require("koa-onerror");
-const bodyparser = require("koa-bodyparser");
+const { koaBody } = require("koa-body");
 const logger = require("koa-logger");
-const parameter = require('koa-parameter')
-const index = require("./routes/index");
-const users = require("./routes/users");
+const parameter = require("koa-parameter");
+const index = require("./src/routes/index");
+const users = require("./src/routes/users");
+const home = require("./src/routes/home");
+const path = require("path");
 
 // 引入数据库
 const mongoose = require("mongoose");
 const { connectionStr } = require("./config");
 mongoose.connect(connectionStr, () => {
-  console.log("MongoDB连接成功！")
-})
-mongoose.connection.on('error', console.error)
+  console.log("MongoDB连接成功！");
+});
+mongoose.connection.on("error", console.error);
 
 // error handler
 onerror(app);
 
 // middlewares
 app.use(
-  bodyparser({
-    enableTypes: ["json", "form", "text"],
+  koaBody({
+    multipart: true,
+    formidable: {
+      uploadDir: path.join(__dirname, "./pubilc/uploadImg"),
+      keepExtensions: true,
+    },
   })
 );
 app.use(json());
@@ -45,11 +51,12 @@ app.use(async (ctx, next) => {
 });
 
 // 参数校验
-app.use(parameter(app))
+app.use(parameter(app));
 
 // routes
 app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
+app.use(home.routes(), home.allowedMethods());
 // error-handling
 app.on("error", (err, ctx) => {
   console.error("server error", err, ctx);

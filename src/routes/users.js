@@ -10,7 +10,6 @@ const auth = jwt({
 
 const authSelf = async (ctx, next) => {
   const { authorization = "" } = ctx.request.header;
-  console.log(authorization, "authorization is");
   const token = authorization.replace("Bearer ", "");
   try {
     const user = jwt.verify(token, secret);
@@ -42,5 +41,14 @@ router.patch("/update/:id", auth, users.checkOwner, users.update);
 router.delete("/delete/:id", auth, users.checkOwner, users.delete);
 
 router.post("/login", users.login);
+
+router.get("/:id/following", users.checkUserExist, users.listFollowing);
+
+router.get("/:id/followers", users.checkUserExist, users.listFollowers);
+
+router.put("/following/:id", auth, users.checkUserExist, users.follow);
+
+router.delete("/following/:id", auth, users.checkUserExist, users.unfollow);
+
 
 module.exports = router;

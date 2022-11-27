@@ -4,11 +4,13 @@ const views = require("koa-views");
 const json = require("koa-json");
 const onerror = require("koa-onerror");
 const { koaBody } = require("koa-body");
+const koaStatic = require("koa-static");
 const logger = require("koa-logger");
 const parameter = require("koa-parameter");
 const index = require("./src/routes/index");
 const users = require("./src/routes/users");
 const home = require("./src/routes/home");
+const topic = require("./src/routes/topic");
 const path = require("path");
 
 // 引入数据库
@@ -19,6 +21,7 @@ mongoose.connect(connectionStr, () => {
 });
 mongoose.connection.on("error", console.error);
 
+app.use(koaStatic(path.join(__dirname, "uploadImg")));
 // error handler
 onerror(app);
 
@@ -27,8 +30,11 @@ app.use(
   koaBody({
     multipart: true,
     formidable: {
-      uploadDir: path.join(__dirname, "./pubilc/uploadImg"),
+      uploadDir: path.join(__dirname, "/uploadImg"),
       keepExtensions: true,
+      onError(err) {
+        console.log(err);
+      },
     },
   })
 );
@@ -57,6 +63,8 @@ app.use(parameter(app));
 app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(home.routes(), home.allowedMethods());
+app.use(topic.routes(), topic.allowedMethods());
+
 // error-handling
 app.on("error", (err, ctx) => {
   console.error("server error", err, ctx);

@@ -29,12 +29,32 @@ class UsersCtl {
   }
 
   async find(ctx) {
-    const data = await User.find();
+    const { per_page = 10, page, q } = ctx.query;
+    const ppage = Math.max(page * 1, 1) - 1;
+    const perPage = Math.max(per_page * 1, 1);
+    const data = await User.find({
+      name: new RegExp(q),
+    })
+      .limit(perPage)
+      .skip(ppage * perPage);
     ctx.body = new SuccessModel({ data });
   }
 
   async findById(ctx) {
-    const data = await User.findById(ctx.params.id);
+    const { fields = "" } = ctx.query;
+
+    const selects = fields
+      .split(";")
+      .filter((f) => f)
+      .map((f) => " +" + f)
+      .join("");
+
+    const data = await User.findById(ctx.params.id)
+      .select(selects)
+      .populate(
+        "following locations business employments.company employments.job educations.school educations.major"
+      );
+
     if (!data) {
       ctx.body = new ErrorModel({
         data,
@@ -43,14 +63,18 @@ class UsersCtl {
       });
       return;
     }
+
     ctx.body = new SuccessModel({ data, msg: "查找成功" });
   }
 
   async checkOwner(ctx, next) {
+    console.log(ctx.params.id, ctx.state.user._id, " ctx.state.user._id is");
     if (ctx.params.id !== ctx.state.user._id) {
       ctx.body = new ErrorModel({
         msg: "该用户没有权限",
         code: 403,
+        pid: ctx.params.id,
+        sid: ctx.state.user._id,
       });
       return;
     }
@@ -61,6 +85,14 @@ class UsersCtl {
     ctx.verifyParams({
       name: { type: "string", required: false },
       password: { type: "string", required: false },
+      avatar_url: { type: "string", required: false },
+      gender: { type: "string", required: false },
+      headline: { type: "string", required: false },
+      locations: { type: "array", itemType: "string", required: false },
+      business: { type: "string", required: false },
+      employments: { type: "array", itemType: "object", required: false },
+      educations: { type: "array", itemType: "object", required: false },
+      introduction: { type: "string", required: false },
     });
     const data = await User.findByIdAndUpdate(ctx.params.id, ctx.request.body);
     if (!data) {
@@ -112,6 +144,89 @@ class UsersCtl {
       msg: "登录成功",
       code: 200,
     });
+  }
+
+  async listFollowing(ctx) {
+    try {
+      const user = await User.findById(ctx.params.id)
+        .select("+following")
+        .populate("following");
+      if (!user) {
+        ctx.body = new ErrorModel({
+          msg: "没有该用户",
+          code: codeMap.unCorrect,
+        });
+        return;
+      }
+      ctx.body = new SuccessModel({
+        data: user.following,
+        msg: "查询成功",
+        code: 200,
+      });
+    } catch (error) {
+      ctx.body = new ErrorModel({
+        msg: "查询失败",
+        code: codeMap.unCorrect,
+      });
+    }
+  }
+
+  async listFollowers(ctx) {
+    const users = await User.find({ following: ctx.params.id });
+    ctx.body = new SuccessModel({
+      data: users,
+      msg: "查询成功",
+      code: 200,
+    });
+  }
+
+  async checkUserExist(ctx, next) {
+    const user = await User.findById(ctx.params.id);
+    if (!user) {
+      ctx.body = new ErrorModel({
+        msg: "用户不存在",
+        code: 10020404,
+      });
+      return;
+    }
+    await next();
+  }
+
+  async follow(ctx) {
+    const me = await User.findById(ctx.state.user._id).select("+following");
+    const id = ctx.params.id;
+    if (!me.following.map((id) => id.toString()).includes(id)) {
+      me.following.push(id);
+      me.save();
+      ctx.body = new SuccessModel({
+        msg: "关注成功",
+        code: 204,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "您已经关注该用户",
+        code: codeMap.unCorrect,
+      });
+    }
+  }
+
+  async unfollow(ctx) {
+    const me = await User.findById(ctx.state.user._id).select("+following");
+    const id = ctx.params.id;
+    const index = me.following.map((id) => id.toString()).indexOf(id);
+    if (index > -1) {
+      me.following.splice(index, 1);
+      me.save();
+      ctx.body = new SuccessModel({
+        msg: "取消关注成功",
+        code: 204,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "您未关注该用户",
+        code: codeMap.unCorrect,
+      });
+    }
   }
 }
 

@@ -3,7 +3,7 @@ class HomeCtl {
         console.log(ctx.request.files, "ctx.request.files is")
         const file = ctx.request.files.file;
         ctx.body = {
-            path: file.path
+            url: `${ctx.origin}/${file.newFilename}`
         }
     }
 }

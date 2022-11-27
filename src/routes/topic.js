@@ -15,8 +15,12 @@ router.get("/", topic.find);
 
 router.post("/", auth, topic.create);
 
-router.get("/:id", topic.findById);
+router.get("/:id", topic.checkTopicExist, topic.findById);
 
-router.patch("/:id", auth, topic.update);
+router.patch("/:id", auth, topic.checkTopicExist, topic.update);
+
+router.get("/:id/followers", topic.checkTopicExist, topic.listTopicFollowers);
+
+
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Topic = require("../models/topic");
+const User = require("../models/users");
 
 const { SuccessModel, ErrorModel } = require("../models/resModel");
 
@@ -13,9 +14,9 @@ class TopicsCtl {
     const { per_page = 10, q } = ctx.query;
     const page = Math.max(ctx.query.page * 1, 1) - 1;
     const perPage = Math.max(per_page * 1, 1);
-      const data = await Topic.find({
-        name: new RegExp(q)
-      })
+    const data = await Topic.find({
+      name: new RegExp(q),
+    })
       .limit(perPage)
       .skip(page * perPage);
     ctx.body = new SuccessModel({ data });
@@ -61,6 +62,34 @@ class TopicsCtl {
       ctx.request.body
     );
     ctx.body = new SuccessModel({ data: topic, msg: "更新话题成功" });
+  }
+
+  async checkTopicExist(ctx, next) {
+    const topicItem = await Topic.findById(ctx.params.id);
+    if (!topicItem) {
+      ctx.body = new ErrorModel({
+        msg: "该话题不存在",
+        code: 10020404,
+      });
+      return;
+    }
+    await next();
+  }
+
+  async listTopicFollowers(ctx) {
+    const topics = await User.find({ followingTopics: ctx.params.id });
+    if (topics) {
+      ctx.body = new SuccessModel({
+        data: topics,
+        msg: "查询成功",
+        code: 200,
+      });
+      return;
+    }
+    ctx.body = new ErrorModel({
+      msg: "查询失败",
+      code: codeMap.unCorrect,
+    });
   }
 }
 

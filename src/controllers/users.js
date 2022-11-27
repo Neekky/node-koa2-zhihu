@@ -49,11 +49,19 @@ class UsersCtl {
       .map((f) => " +" + f)
       .join("");
 
+    const populateStr = fields
+      .split(";")
+      .filter((f) => f)
+      .map((f) => {
+        if (f === "employments") return "employments.company employments.job"
+        if (f === "educations") return "educations.school educations.major"
+        return f;
+      })
+      .join(" ");
+
     const data = await User.findById(ctx.params.id)
       .select(selects)
-      .populate(
-        "following locations business employments.company employments.job educations.school educations.major"
-      );
+      .populate(populateStr);
 
     if (!data) {
       ctx.body = new ErrorModel({
@@ -224,6 +232,70 @@ class UsersCtl {
     } else {
       ctx.body = new ErrorModel({
         msg: "您未关注该用户",
+        code: codeMap.unCorrect,
+      });
+    }
+  }
+
+  // 获取用户关注的话题
+  async listFollowingTopics(ctx) {
+    try {
+      const topicList = await User.findById(ctx.params.id)
+        .select("+followingTopics")
+        .populate("followingTopics");
+      if (!topicList) {
+        ctx.body = new ErrorModel({
+          msg: "没有该话题",
+          code: codeMap.unCorrect,
+        });
+        return;
+      }
+      ctx.body = new SuccessModel({
+        data: topicList.followingTopics,
+        msg: "查询成功",
+        code: 200,
+      });
+    } catch (error) {
+      ctx.body = new ErrorModel({
+        msg: "查询失败",
+        code: codeMap.unCorrect,
+        err: error
+      });
+    }
+  }
+
+  async followTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select("+followingTopics");
+    const id = ctx.params.id;
+    if (!me.followingTopics.map((id) => id.toString()).includes(id)) {
+      me.followingTopics.push(id);
+      me.save();
+      ctx.body = new SuccessModel({
+        msg: "关注成功",
+        code: 204,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "您已经关注该话题",
+        code: codeMap.unCorrect,
+      });
+    }
+  }
+
+  async unfollowTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select("+followingTopics");
+    const id = ctx.params.id;
+    const index = me.followingTopics.map((id) => id.toString()).indexOf(id);
+    if (index > -1) {
+      me.followingTopics.splice(index, 1);
+      me.save();
+      ctx.body = new SuccessModel({
+        msg: "取消关注成功",
+        code: 204,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "您未关注该话题",
         code: codeMap.unCorrect,
       });
     }

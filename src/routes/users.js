@@ -1,5 +1,6 @@
 const jwt = require("koa-jwt");
 const { secret } = require("../../config");
+const topic = require("../controllers/topic");
 const router = require("koa-router")();
 const users = require("../controllers/users");
 const { SuccessModel, ErrorModel } = require("../models/resModel");
@@ -49,6 +50,15 @@ router.get("/:id/followers", users.checkUserExist, users.listFollowers);
 router.put("/following/:id", auth, users.checkUserExist, users.follow);
 
 router.delete("/following/:id", auth, users.checkUserExist, users.unfollow);
+
+
+router.put("/following-topics/:id", auth, topic.checkTopicExist, users.followTopic);
+
+router.delete("/following-topics/:id", auth, topic.checkTopicExist, users.unfollowTopic);
+
+router.delete("/following-topics/:id", auth, topic.checkTopicExist, users.unfollowTopic);
+
+router.get("/:id/following-topics", users.checkUserExist, users.listFollowingTopics);
 
 
 module.exports = router;

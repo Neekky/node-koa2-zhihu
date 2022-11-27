@@ -27,9 +27,10 @@ class SuccessModel extends BaseModel {
 
 class ErrorModel extends BaseModel {
   constructor(params) {
-    const { data, msg, code } = params;
+    const { data, msg, code, err } = params;
     super(params);
     this.code = code || 404;
+    this.err = err || "";
   }
 }
 

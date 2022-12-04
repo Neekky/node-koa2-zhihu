@@ -1,5 +1,6 @@
 const Topic = require("../models/topic");
 const User = require("../models/users");
+const Question = require("../models/question");
 
 const { SuccessModel, ErrorModel } = require("../models/resModel");
 
@@ -81,6 +82,22 @@ class TopicsCtl {
     if (topics) {
       ctx.body = new SuccessModel({
         data: topics,
+        msg: "查询成功",
+        code: 200,
+      });
+      return;
+    }
+    ctx.body = new ErrorModel({
+      msg: "查询失败",
+      code: codeMap.unCorrect,
+    });
+  }
+
+  async listQuestions(ctx) {
+    const questions = await Question.find({ topics: ctx.params.id });
+    if (questions) {
+      ctx.body = new SuccessModel({
+        data: questions,
         msg: "查询成功",
         code: 200,
       });

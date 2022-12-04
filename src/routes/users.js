@@ -3,6 +3,7 @@ const { secret } = require("../../config");
 const topic = require("../controllers/topic");
 const router = require("koa-router")();
 const users = require("../controllers/users");
+const answer = require("../controllers/answer");
 const { SuccessModel, ErrorModel } = require("../models/resModel");
 
 const auth = jwt({
@@ -51,14 +52,30 @@ router.put("/following/:id", auth, users.checkUserExist, users.follow);
 
 router.delete("/following/:id", auth, users.checkUserExist, users.unfollow);
 
-
 router.put("/following-topics/:id", auth, topic.checkTopicExist, users.followTopic);
-
-router.delete("/following-topics/:id", auth, topic.checkTopicExist, users.unfollowTopic);
 
 router.delete("/following-topics/:id", auth, topic.checkTopicExist, users.unfollowTopic);
 
 router.get("/:id/following-topics", users.checkUserExist, users.listFollowingTopics);
 
+router.get("/:id/questions", users.listQuestions);
+
+router.get("/:id/liking-answer", users.listLikingAnswers);
+
+router.put("/liking-answer/:id", auth, answer.checkAnswerExist, users.likeAnswer, users.undislikeAnswer);
+
+router.delete("/liking-answer/:id", auth, answer.checkAnswerExist, users.unlikeAnswer);
+
+router.get("/:id/disliking-answer", users.listDislikingAnswers);
+
+router.put("/disliking-answer/:id", auth, answer.checkAnswerExist, users.dislikeAnswer, users.unlikeAnswer);
+
+router.delete("/disliking-answer/:id", auth, answer.checkAnswerExist, users.undislikeAnswer);
+
+router.get("/:id/collect-answer", users.listCollectingAnswers);
+
+router.put("/collect-answer/:id", auth, answer.checkAnswerExist, users.collectAnswer);
+
+router.delete("/collect-answer/:id", auth, answer.checkAnswerExist, users.uncollectAnswer);
 
 module.exports = router;

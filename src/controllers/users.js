@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
+const Question = require("../models/question");
+const Answer = require("../models/answers");
 const { secret } = require("../../config");
 const { SuccessModel, ErrorModel } = require("../models/resModel");
 
@@ -53,8 +55,8 @@ class UsersCtl {
       .split(";")
       .filter((f) => f)
       .map((f) => {
-        if (f === "employments") return "employments.company employments.job"
-        if (f === "educations") return "educations.school educations.major"
+        if (f === "employments") return "employments.company employments.job";
+        if (f === "educations") return "educations.school educations.major";
         return f;
       })
       .join(" ");
@@ -259,13 +261,15 @@ class UsersCtl {
       ctx.body = new ErrorModel({
         msg: "查询失败",
         code: codeMap.unCorrect,
-        err: error
+        err: error,
       });
     }
   }
 
   async followTopic(ctx) {
-    const me = await User.findById(ctx.state.user._id).select("+followingTopics");
+    const me = await User.findById(ctx.state.user._id).select(
+      "+followingTopics"
+    );
     const id = ctx.params.id;
     if (!me.followingTopics.map((id) => id.toString()).includes(id)) {
       me.followingTopics.push(id);
@@ -283,7 +287,9 @@ class UsersCtl {
   }
 
   async unfollowTopic(ctx) {
-    const me = await User.findById(ctx.state.user._id).select("+followingTopics");
+    const me = await User.findById(ctx.state.user._id).select(
+      "+followingTopics"
+    );
     const id = ctx.params.id;
     const index = me.followingTopics.map((id) => id.toString()).indexOf(id);
     if (index > -1) {
@@ -299,6 +305,207 @@ class UsersCtl {
         code: codeMap.unCorrect,
       });
     }
+  }
+
+  async listQuestions(ctx) {
+    const questions = await Question.find({ questioner: ctx.params.id });
+    if (questions) {
+      ctx.body = new SuccessModel({
+        data: questions,
+        msg: "查询成功",
+        code: 204,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "查询失败",
+        code: codeMap.unCorrect,
+      });
+    }
+  }
+
+  // 获取用户点赞过的答案列表
+  async listLikingAnswers(ctx) {
+    try {
+      const user = await User.findById(ctx.params.id)
+        .select("+likingAnswers")
+        .populate("likingAnswers");
+      if (!user) {
+        ctx.body = new ErrorModel({
+          msg: "没有该用户",
+          code: codeMap.unCorrect,
+        });
+        return;
+      }
+      ctx.body = new SuccessModel({
+        data: user.likingAnswers,
+        msg: "查询成功",
+        code: 200,
+      });
+    } catch (error) {
+      ctx.body = new ErrorModel({
+        msg: "查询失败",
+        code: codeMap.unCorrect,
+        err: error,
+      });
+    }
+  }
+
+  async likeAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select("+likingAnswers");
+    const id = ctx.params.id;
+    if (!me.likingAnswers.map((id) => id.toString()).includes(id)) {
+      me.likingAnswers.push(id);
+      me.save();
+      // 答案的投票数+1
+      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: 1 } });
+    }
+
+    await next();
+  }
+
+  async unlikeAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select(
+      "+likingAnswers"
+    );
+    const id = ctx.params.id;
+    const index = me.likingAnswers.map((id) => id.toString()).indexOf(id);
+    if (index > -1) {
+      me.likingAnswers.splice(index, 1);
+      me.save();
+      // 投票数-1
+      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: -1 } });
+    }
+    ctx.body = new SuccessModel({
+      code: 204,
+    });
+  }
+
+  // 获取用户点赞过的答案列表
+  async listDislikingAnswers(ctx) {
+    try {
+      const user = await User.findById(ctx.params.id)
+        .select("+disLikingAnswers")
+        .populate("disLikingAnswers");
+      if (!user) {
+        ctx.body = new ErrorModel({
+          msg: "没有该用户",
+          code: codeMap.unCorrect,
+        });
+        return;
+      }
+      ctx.body = new SuccessModel({
+        data: user.disLikingAnswers,
+        msg: "查询成功",
+        code: 200,
+      });
+    } catch (error) {
+      ctx.body = new ErrorModel({
+        msg: "查询失败",
+        code: codeMap.unCorrect,
+        err: error,
+      });
+    }
+  }
+
+  // 踩答案
+  async dislikeAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select("+disLikingAnswers");
+    const id = ctx.params.id;
+    if (!me.disLikingAnswers.map((id) => id.toString()).includes(id)) {
+      me.disLikingAnswers.push(id);
+      me.save();
+      
+      ctx.body = new SuccessModel({
+        msg: "踩成功",
+        code: 200,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "您已经踩该话题",
+        code: codeMap.unCorrect,
+      });
+    }
+
+    await next();
+  }
+
+  // 取消踩答案
+  async undislikeAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select(
+      "+disLikingAnswers"
+    );
+    const id = ctx.params.id;
+    const index = me.disLikingAnswers.map((id) => id.toString()).indexOf(id);
+    if (index > -1) {
+      me.disLikingAnswers.splice(index, 1);
+      me.save();
+    }
+    ctx.body = new SuccessModel({
+      code: 204,
+    });
+  }
+
+  // 获取用户收藏的答案列表
+  async listCollectingAnswers(ctx) {
+    try {
+      const user = await User.findById(ctx.params.id)
+        .select("+collectingAnswers")
+        .populate("collectingAnswers");
+      if (!user) {
+        ctx.body = new ErrorModel({
+          msg: "没有该用户",
+          code: codeMap.unCorrect,
+        });
+        return;
+      }
+      ctx.body = new SuccessModel({
+        data: user.collectingAnswers,
+        msg: "查询成功",
+        code: 200,
+      });
+    } catch (error) {
+      ctx.body = new ErrorModel({
+        msg: "查询失败",
+        code: codeMap.unCorrect,
+        err: error,
+      });
+    }
+  }
+
+  // 踩答案
+  async collectAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select("+collectingAnswers");
+    const id = ctx.params.id;
+    if (!me.collectingAnswers.map((id) => id.toString()).includes(id)) {
+      me.collectingAnswers.push(id);
+      me.save();
+      
+      ctx.body = new SuccessModel({
+        msg: "收藏成功",
+        code: 200,
+      });
+    } else {
+      ctx.body = new ErrorModel({
+        msg: "您已经收藏该答案",
+        code: codeMap.unCorrect,
+      });
+    }
+  }
+
+  // 取消踩答案
+  async uncollectAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select(
+      "+collectingAnswers"
+    );
+    const id = ctx.params.id;
+    const index = me.collectingAnswers.map((id) => id.toString()).indexOf(id);
+    if (index > -1) {
+      me.collectingAnswers.splice(index, 1);
+      me.save();
+    }
+    ctx.body = new SuccessModel({
+      code: 204,
+    });
   }
 }
 

@@ -21,6 +21,8 @@ router.patch("/:id", auth, topic.checkTopicExist, topic.update);
 
 router.get("/:id/followers", topic.checkTopicExist, topic.listTopicFollowers);
 
+router.get("/:id/questions", topic.checkTopicExist, topic.listQuestions);
+
 
 
 module.exports = router;

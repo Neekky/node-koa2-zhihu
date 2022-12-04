@@ -11,6 +11,9 @@ const index = require("./src/routes/index");
 const users = require("./src/routes/users");
 const home = require("./src/routes/home");
 const topic = require("./src/routes/topic");
+const question = require("./src/routes/question");
+const answer = require("./src/routes/answers");
+const comment = require("./src/routes/comment");
 const path = require("path");
 
 // 引入数据库
@@ -64,6 +67,9 @@ app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(home.routes(), home.allowedMethods());
 app.use(topic.routes(), topic.allowedMethods());
+app.use(question.routes(), question.allowedMethods());
+app.use(answer.routes(), answer.allowedMethods());
+app.use(comment.routes(), comment.allowedMethods());
 
 // error-handling
 app.on("error", (err, ctx) => {

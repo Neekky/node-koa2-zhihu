@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node bin/www",
+    "start": "cross-env PORT=9001 node bin/www ",
     "dev": "./node_modules/.bin/nodemon bin/www",
-    "prd": "pm2 start bin/www.js",
+    "prd": "cross-env PORT=9001 pm2 start bin/www.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@types/koa": "^2.13.5",
+    "cross-env": "^7.0.3",
     "eslint": "^8.27.0",
     "nodemon": "^1.19.1",
     "ts-node": "^10.9.1",

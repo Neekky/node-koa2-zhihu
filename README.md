@@ -3,6 +3,19 @@
 接口文档地址
 https://documenter.getpostman.com/view/9795002/2s8YzTTN8W
 
+### 项目运行
+``` js
+yarn
+// or
+npm install
+
+// 开发调试
+yarn start:dist
+
+// 构建打包
+yarn build
+```
+
 ### 简介
 该项目为一个后端项目，该项目仿"知乎"，模拟实现了：
 - JWT用户认证、授权模块
@@ -21,6 +34,9 @@ https://documenter.getpostman.com/view/9795002/2s8YzTTN8W
 - MongoDB
 - PM2
 - Nginx
+- Webpack
+
+项目使用了Webpack，进行构建压缩
 
 ### 下阶段计划
 为其开发一个前端项目，进行数据承载

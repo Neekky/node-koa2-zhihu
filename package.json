@@ -3,12 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "cross-env PORT=9001 node bin/www ",
+    "start": "cross-env PORT=9001 npx nodemon --exec babel-node bin/www",
+    "webpack:debug": "node --inspect-brk ./node_modules/.bin/webpack --config webpack/webpack.config.prod.js --progress",
+    "watch": "cross-env NODE_ENV=development PORT=9001 ./node_modules/.bin/webpack --watch --config webpack/webpack.config.dev.js --progress",
+    "debug": "nodemon --inspect dist/server.bundle.js",
+    "start:dist": "npm-run-all -p watch debug",
+    "build": "cross-env NODE_ENV=production PORT=9001 ./node_modules/.bin/webpack --config webpack/webpack.config.prod.js --progress",
     "dev": "./node_modules/.bin/nodemon bin/www",
     "prd": "cross-env PORT=9001 pm2 start bin/www.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.19.6",
     "debug": "^4.1.1",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",
@@ -28,11 +34,24 @@
     "pug": "^2.0.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.20.12",
+    "@babel/node": "^7.20.7",
+    "@babel/preset-env": "^7.20.2",
     "@types/koa": "^2.13.5",
+    "babel-loader": "^9.1.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.27.0",
-    "nodemon": "^1.19.1",
+    "nodemon": "^2.0.20",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^4.0.7",
+    "terser-webpack-plugin": "^5.3.6",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-merge": "^5.8.0",
+    "webpack-node-externals": "^3.0.0"
   }
 }

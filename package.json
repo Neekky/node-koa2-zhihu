@@ -8,7 +8,7 @@
     "watch": "cross-env NODE_ENV=development PORT=9001 ./node_modules/.bin/webpack --watch --config webpack/webpack.config.dev.js --progress",
     "debug": "nodemon --inspect dist/server.bundle.js",
     "start:dist": "npm-run-all -p watch debug",
-    "build": "cross-env NODE_ENV=production PORT=9002 ./node_modules/.bin/webpack --config webpack/webpack.config.prod.js --progress",
+    "build": "cross-env NODE_ENV=production ./node_modules/.bin/webpack --config webpack/webpack.config.prod.js --progress",
     "dev": "./node_modules/.bin/nodemon bin/www",
     "prd": "cross-env PORT=9001 pm2 start bin/www.js",
     "test": "echo \"Error: no test specified\" && exit 1"

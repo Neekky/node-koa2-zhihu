@@ -2,7 +2,6 @@ const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-
 const webpackConfig = {
   target: 'node', // koa项目仅在node环境下运行，因此设置称'node'
   entry: {
@@ -29,7 +28,7 @@ const webpackConfig = {
         },
         // 尽量将 loader 应用于最少数量的必要模块，因此设置include
         // 只针对该目录下的js文件进行babel处理
-        // include: path.join(__dirname, '../src')
+        // include: path.join(__dirname, '../')
       }
     ]
   },
@@ -37,7 +36,7 @@ const webpackConfig = {
     // modules: 告诉webpack哪些目录需要搜索去匹配解析
     modules: [path.join(__dirname, '../bin/www.js'), 'node_modules'],
     // extensions: 告诉webpack这些后缀文件需要去搜索匹配
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.json', '.ts', '.tsx', '.jsx'],
     alias: {
       // 设置别名指向对应目录
       '@': path.join(__dirname, '../src')

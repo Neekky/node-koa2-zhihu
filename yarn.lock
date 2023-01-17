@@ -2506,6 +2506,13 @@ babel-plugin-transform-runtime@^6.23.0:
   dependencies:
     babel-runtime "^6.22.0"
 
+babel-runtime-regenerator@^7.8.4:
+  version "7.8.4"
+  resolved "https://registry.npmmirror.com/babel-runtime-regenerator/-/babel-runtime-regenerator-7.8.4.tgz#358f2e64477c85dfa6f4d1fd79758045a4d1ad06"
+  integrity sha512-xFI/tNhl0ZqGRg5XGlKdx3Tr9Z49q46MtIC4LivO6+S59Ii4mLKTu3UX8XCTCne80aj8aNcV16IZmj5cwT8lqA==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 babel-runtime@^6.22.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.npmmirror.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
@@ -5640,7 +5647,7 @@ regenerator-runtime@^0.11.0:
   resolved "https://registry.npmmirror.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
   integrity sha512-MguG95oij0fC3QV3URf4V2SDYGJhJnJGqvIIgdECeODCT98wSWDAJ94SSuVpYQUoTcGUIL6L4yNB7j1DFFHSBg==
 
-regenerator-runtime@^0.13.11:
+regenerator-runtime@^0.13.11, regenerator-runtime@^0.13.2:
   version "0.13.11"
   resolved "https://registry.npmmirror.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
   integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==

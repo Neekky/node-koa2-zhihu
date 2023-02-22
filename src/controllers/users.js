@@ -137,7 +137,19 @@ class UsersCtl {
       name: { type: "string", required: true },
       password: { type: "string", required: true },
     });
-    const user = await User.findOne(ctx.request.body);
+
+    const selectList = ["avatar_url"];
+
+    const selects = selectList
+      .map((f) => " +" + f)
+      .join("");
+
+    const populateStr = selectList.join(" ");
+
+
+    const user = await User.findOne(ctx.request.body).select(selects)
+    .populate(populateStr);
+
     if (!user) {
       ctx.body = new ErrorModel({
         msg: "用户名或密码不正确",
@@ -150,7 +162,7 @@ class UsersCtl {
       expiresIn: "2d",
     });
     ctx.body = new SuccessModel({
-      data: { token },
+      data: { token, user },
       msg: "登录成功",
       code: 200,
     });
@@ -357,7 +369,7 @@ class UsersCtl {
       me.likingAnswers.push(id);
       me.save();
       // 答案的投票数+1
-      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: 1 } });
+      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: 1 }, $push: { liked_by: ctx.state.user._id, liked_by_new: ctx.state.user._id } });
     }
 
     await next();
@@ -376,7 +388,7 @@ class UsersCtl {
       await Answer.findByIdAndUpdate(id, { $inc: { voteCount: -1 } });
     }
     ctx.body = new SuccessModel({
-      code: 204,
+      code: 204
     });
   }
 
@@ -472,7 +484,7 @@ class UsersCtl {
     }
   }
 
-  // 踩答案
+  // 收藏答案
   async collectAnswer(ctx) {
     const me = await User.findById(ctx.state.user._id).select("+collectingAnswers");
     const id = ctx.params.id;
@@ -492,7 +504,7 @@ class UsersCtl {
     }
   }
 
-  // 取消踩答案
+  // 取消收藏答案
   async uncollectAnswer(ctx) {
     const me = await User.findById(ctx.state.user._id).select(
       "+collectingAnswers"

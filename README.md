@@ -36,7 +36,11 @@ yarn build
 - Nginx
 - Webpack
 
-项目使用了Webpack，进行构建压缩
+项目使用了Webpack，进行构建压缩。
+处理了浏览器CORS问题。
 
 ### 下阶段计划
 为其开发一个前端项目，进行数据承载
+
+目前正在开发当中：
+技术栈为Nuxt + Pinia + Vue3 + Typescript + Element Plus

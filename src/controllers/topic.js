@@ -94,7 +94,9 @@ class TopicsCtl {
   }
 
   async listQuestions(ctx) {
-    const questions = await Question.find({ topics: ctx.params.id });
+    const questions = await Question.find({ topics: ctx.params.id })
+      .select("+questioner")
+      .populate("questioner");
     if (questions) {
       ctx.body = new SuccessModel({
         data: questions,

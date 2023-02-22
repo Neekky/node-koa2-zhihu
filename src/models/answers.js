@@ -10,10 +10,18 @@ const answerSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      select: false,
+      select: true,
     },
     questionId: { type: String, required: true },
     voteCount: { type: Number, required: true, default: 0 },
+    liked_by: {
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
+      select: true,
+    },
+    liked_by_new: {
+      type: [String],
+      select: true,
+    }
   },
   { timestamps: true }
 );

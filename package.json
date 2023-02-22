@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "cross-env PORT=9001 npx nodemon --exec babel-node bin/www",
+    "start": "cross-env PORT=3000 npx nodemon --exec babel-node bin/www",
     "webpack:debug": "node --inspect-brk ./node_modules/.bin/webpack --config webpack/webpack.config.prod.js --progress",
     "watch": "cross-env NODE_ENV=development PORT=9001 ./node_modules/.bin/webpack --watch --config webpack/webpack.config.dev.js --progress",
     "debug": "nodemon --inspect dist/server.bundle.js",
@@ -31,6 +31,7 @@
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
+    "koa2-cors": "^2.0.6",
     "mongoose": "^6.7.1",
     "pm2": "^5.2.2",
     "pug": "^2.0.3"

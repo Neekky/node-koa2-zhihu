@@ -7,6 +7,7 @@ const userSchema = new Schema(
     __v: { type: Number, select: false },
     name: { type: String, required: true },
     age: { type: Number, required: false, default: 0 },
+    email: { type: String, required: false },
     password: { type: String, required: true, select: false },
     avatar_url: { type: String },
     gender: {

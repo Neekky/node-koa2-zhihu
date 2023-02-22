@@ -11,15 +11,40 @@ const codeMap = {
 
 class QuestionCtl {
   async find(ctx) {
-    const { per_page = 10, q } = ctx.query;
+    const { per_page = 10, q, topic_id } = ctx.query;
     const page = Math.max(ctx.query.page * 1, 1) - 1;
     const perPage = Math.max(per_page * 1, 1);
     const regQ = new RegExp(q);
+    const topic = topic_id ? { topics: topic_id } : {};
     const data = await Question.find({
       $or: [{ title: regQ }, { description: regQ }],
+      ...topic,
     })
+      .select("+questioner")
+      .populate("questioner")
       .limit(perPage)
       .skip(page * perPage);
+    // 联表查询测试
+    //   const test = await Question.aggregate([
+    //     {
+    //        $lookup:
+    //        {
+    //           from: "Answer",
+    //           localField: "_id",
+    //           foreignField: "questionId",
+    //           as: "answers"
+    //        }
+    //     },
+    //     {
+    //        $addFields:
+    //        {
+    //           first_answer:
+    //           {
+    //              $arrayElemAt: ["$answers", 0]
+    //           }
+    //        }
+    //     }
+    //  ])
     ctx.body = new SuccessModel({ data });
   }
 

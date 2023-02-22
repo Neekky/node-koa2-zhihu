@@ -70,7 +70,7 @@ class AnswerCtl {
                 answerer: 1,
                 voteCount: 1,
                 // likedByCurrentUser: 1,
-                liked_by: { $in: [userId] } // 在liked_by数组中查找userId是否存在，返回boolean值
+                // liked_by: { $in: [userId] } // 在liked_by数组中查找userId是否存在，返回boolean值
               },
             },
           ],

@@ -46,6 +46,7 @@ class QuestionCtl {
     //     }
     //  ])
     ctx.body = new SuccessModel({ data });
+    
   }
 
   async findById(ctx) {

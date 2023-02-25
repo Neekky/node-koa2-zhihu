@@ -79,7 +79,7 @@ class QuestionCtl {
       ...ctx.request.body,
       questioner: ctx.state.user._id,
     }).save();
-    ctx.body = new SuccessModel({ data: question, msg: "创建话题成功" });
+    ctx.body = new SuccessModel({ data: question, msg: "创建问题成功" });
   }
 
   async update(ctx) {

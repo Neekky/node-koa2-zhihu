@@ -17,10 +17,6 @@ const answerSchema = new Schema(
     liked_by: {
       type: [{ type: Schema.Types.ObjectId, ref: "User" }],
       select: true,
-    },
-    liked_by_new: {
-      type: [String],
-      select: true,
     }
   },
   { timestamps: true }

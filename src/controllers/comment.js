@@ -22,7 +22,7 @@ class CommentCtl {
       content: regQ,
       questionId,
       answerId,
-      rootCommentId,
+      // rootCommentId,
     })
       .limit(perPage)
       .skip(page * perPage)

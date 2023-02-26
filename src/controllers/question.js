@@ -23,7 +23,8 @@ class QuestionCtl {
       .select("+questioner")
       .populate("questioner")
       .limit(perPage)
-      .skip(page * perPage);
+      .skip(page * perPage)
+      ;
     // 联表查询测试
     //   const test = await Question.aggregate([
     //     {

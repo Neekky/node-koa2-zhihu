@@ -140,15 +140,13 @@ class UsersCtl {
 
     const selectList = ["avatar_url"];
 
-    const selects = selectList
-      .map((f) => " +" + f)
-      .join("");
+    const selects = selectList.map((f) => " +" + f).join("");
 
     const populateStr = selectList.join(" ");
 
-
-    const user = await User.findOne(ctx.request.body).select(selects)
-    .populate(populateStr);
+    const user = await User.findOne(ctx.request.body)
+      .select(selects)
+      .populate(populateStr);
 
     if (!user) {
       ctx.body = new ErrorModel({
@@ -173,6 +171,7 @@ class UsersCtl {
       const user = await User.findById(ctx.params.id)
         .select("+following")
         .populate("following");
+
       if (!user) {
         ctx.body = new ErrorModel({
           msg: "没有该用户",
@@ -194,9 +193,15 @@ class UsersCtl {
   }
 
   async listFollowers(ctx) {
-    const users = await User.find({ following: ctx.params.id });
+    const [users, isFollow] = await Promise.all([
+      User.find({ following: ctx.params.id }),
+      User.find({
+        _id: ctx.params.id,
+        following: { $in: [ctx.params.id] },
+      }),
+    ]);
     ctx.body = new SuccessModel({
-      data: users,
+      data: { users, isFollow: isFollow.length>0 },
       msg: "查询成功",
       code: 200,
     });
@@ -369,16 +374,19 @@ class UsersCtl {
       me.likingAnswers.push(id);
       me.save();
       // 答案的投票数+1
-      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: 1 }, $push: { liked_by: ctx.state.user._id, liked_by_new: ctx.state.user._id } });
+      await Answer.findByIdAndUpdate(id, {
+        $inc: { voteCount: 1 },
+        $push: {
+          liked_by: ctx.state.user._id,
+        },
+      });
     }
 
     await next();
   }
 
   async unlikeAnswer(ctx) {
-    const me = await User.findById(ctx.state.user._id).select(
-      "+likingAnswers"
-    );
+    const me = await User.findById(ctx.state.user._id).select("+likingAnswers");
     const id = ctx.params.id;
     const index = me.likingAnswers.map((id) => id.toString()).indexOf(id);
     if (index > -1) {
@@ -388,7 +396,7 @@ class UsersCtl {
       await Answer.findByIdAndUpdate(id, { $inc: { voteCount: -1 } });
     }
     ctx.body = new SuccessModel({
-      code: 204
+      code: 204,
     });
   }
 
@@ -421,12 +429,14 @@ class UsersCtl {
 
   // 踩答案
   async dislikeAnswer(ctx, next) {
-    const me = await User.findById(ctx.state.user._id).select("+disLikingAnswers");
+    const me = await User.findById(ctx.state.user._id).select(
+      "+disLikingAnswers"
+    );
     const id = ctx.params.id;
     if (!me.disLikingAnswers.map((id) => id.toString()).includes(id)) {
       me.disLikingAnswers.push(id);
       me.save();
-      
+
       ctx.body = new SuccessModel({
         msg: "踩成功",
         code: 200,
@@ -486,12 +496,14 @@ class UsersCtl {
 
   // 收藏答案
   async collectAnswer(ctx) {
-    const me = await User.findById(ctx.state.user._id).select("+collectingAnswers");
+    const me = await User.findById(ctx.state.user._id).select(
+      "+collectingAnswers"
+    );
     const id = ctx.params.id;
     if (!me.collectingAnswers.map((id) => id.toString()).includes(id)) {
       me.collectingAnswers.push(id);
       me.save();
-      
+
       ctx.body = new SuccessModel({
         msg: "收藏成功",
         code: 200,

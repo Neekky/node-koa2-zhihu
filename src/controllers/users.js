@@ -78,7 +78,6 @@ class UsersCtl {
   }
 
   async checkOwner(ctx, next) {
-    console.log(ctx.params.id, ctx.state.user._id, " ctx.state.user._id is");
     if (ctx.params.id !== ctx.state.user._id) {
       ctx.body = new ErrorModel({
         msg: "该用户没有权限",
@@ -193,15 +192,25 @@ class UsersCtl {
   }
 
   async listFollowers(ctx) {
-    const [users, isFollow] = await Promise.all([
-      User.find({ following: ctx.params.id }),
+    // 定义普通查询
+    const users = () => User.find({ following: ctx.params.id });
+    // 定义高级查询
+    const isFollow = () =>
       User.find({
-        _id: ctx.params.id,
+        _id: ctx.query?.userId || "",
         following: { $in: [ctx.params.id] },
-      }),
-    ]);
+      });
+
+    // 默认做普通查询
+    const resList = [users()];
+
+    if (ctx.query?.userId) {
+      // 当用户登录时，则进行是否关注的查询
+      resList.push(isFollow());
+    }
+    const res = await Promise.all(resList);
     ctx.body = new SuccessModel({
-      data: { users, isFollow: isFollow.length>0 },
+      data: { users: res[0], isFollow: ctx.query?.userId && res[1]?.length > 0 },
       msg: "查询成功",
       code: 200,
     });

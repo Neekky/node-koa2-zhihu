@@ -402,7 +402,9 @@ class UsersCtl {
       me.likingAnswers.splice(index, 1);
       me.save();
       // 投票数-1
-      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: -1 } });
+      await Answer.findByIdAndUpdate(id, { $inc: { voteCount: -1 }, $pull: {
+        liked_by: ctx.state.user._id,
+      } });
     }
     ctx.body = new SuccessModel({
       code: 204,

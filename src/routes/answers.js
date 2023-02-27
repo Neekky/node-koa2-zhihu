@@ -11,8 +11,6 @@ router.prefix("/question/:questionId/answer");
 
 router.get("/", answer.find);
 
-router.get("/plus/query", answer.findplus);
-
 router.post("/", auth, answer.create);
 
 router.get("/:id", answer.checkAnswerExist, answer.findById);

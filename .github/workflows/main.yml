@@ -53,7 +53,7 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd /home/admin/code/realworld-nuxtjs
+          cd /home/admin/code/node-koa2-zhihu
           wget https://github.com/Neekky/node-koa2-zhihu/releases/latest/download/release.tgz -O release.tgz
           tar zxvf release.tgz
           npm install --production

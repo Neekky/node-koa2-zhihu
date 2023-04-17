@@ -46,7 +46,7 @@ class QuestionCtl {
     //        }
     //     }
     //  ])
-    ctx.body = new SuccessModel({ data });
+    ctx.body = new SuccessModel({ data, msg: "查找成功，测试CICD" });
     
   }
 

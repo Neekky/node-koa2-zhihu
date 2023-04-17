@@ -44,3 +44,7 @@ yarn build
 
 目前正在开发当中：
 技术栈为Nuxt + Pinia + Vue3 + Typescript + Element Plus
+
+### 更新日志
+2023.04.17：增加CICD，使用 github action 完成自动部署
+2023.03.06：完善用户关注、问题点赞功能

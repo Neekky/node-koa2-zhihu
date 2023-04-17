@@ -57,5 +57,5 @@ jobs:
           wget https://github.com/Neekky/node-koa2-zhihu/releases/latest/download/release.tgz -O release.tgz
           tar zxvf release.tgz
           npm install --production
-          pm2 reload pm2.config.json
+          pm2 reload ./bin/www.js
           rm -rf release.tgz

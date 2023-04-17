@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "ZhiHu_Koa2",
+      "script": "yarn",
+      "args": "start"
+    }
+  ]
+}
